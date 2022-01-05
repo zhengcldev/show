@@ -67,13 +67,12 @@
     <!--    图表-->
     <el-row style="height: 40%">
       <el-col :span="12">
-        <div id="PSFUI" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
+        <div id="SFUI" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
       </el-col>
       <el-col :span="12">
         <div id="SearchCount" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
       </el-col>
     </el-row>
-
     <el-row style="height: 40%">
       <el-col :span="12">
         <div id="Runtime" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
@@ -95,10 +94,10 @@ export default {
         targetOption: [],
         dataOption: []
       },
-      runtime: [],
-      memory: [],
-      PSFUI: [],
-      searchSpace: [],
+      runtime: [[]],
+      memory: [[]],
+      SFUI: [[]],
+      searchSpace: [[]],
       series: [],
       mySeries: [],
       myAlgo: [],
@@ -187,8 +186,8 @@ export default {
           };
           this.postRequest('/skyline/runAlgorithm', returnDta).then(resp => {
             if (resp) {
+              //todo 清空画布，增加离线查询,用户信息，首页图片,超级管理员添加用户重置密码
               if (resp.data.data) {
-
                 for (let i = 0; i < this.value1.length+this.value2.length; i++) {
                   this.mySeries.push({type: 'bar'});
                 }
@@ -199,14 +198,14 @@ export default {
                 for(let i=0;i<this.value2.length;i++){
                   this.myAlgo.push(this.value2[i]);
                 }
-                this.runtime.push(this.myAlgo);
-                this.memory.push(this.myAlgo);
-                this.PSFUI.push(this.myAlgo);
-                this.searchSpace.push(this.myAlgo);
                 this.runtime = resp.data.data.runtime;
                 this.memory = resp.data.data.memory;
-                this.PSFUI = resp.data.data.PSFUI;
+                this.SFUI = resp.data.data.SFUI;
                 this.searchSpace = resp.data.data.searchSpace;
+                this.runtime.unshift(this.myAlgo);
+                this.memory.unshift(this.myAlgo);
+                this.SFUI.unshift(this.myAlgo);
+                this.searchSpace.unshift(this.myAlgo);
                 //this.series = resp.data.data.series;
                 this.rotation()
               } else {
@@ -229,7 +228,7 @@ export default {
       });
     },
     rotation() {
-      let drawPSFUI = this.$echarts.init(document.getElementById('PSFUI'));
+      let drawSFUI = this.$echarts.init(document.getElementById('SFUI'));
       let drawSearchCount = this.$echarts.init(document.getElementById('SearchCount'));
       let drawRuntime = this.$echarts.init(document.getElementById('Runtime'));
       let drawMemory = this.$echarts.init(document.getElementById('Memory'));
@@ -237,16 +236,16 @@ export default {
         legend: {},
         tooltip: {},
         title: {
-          text: '时间消耗:'
+          text: '时间:'
         },
         dataset: {
           // 提供一份数据。
           source: this.runtime
         },
         // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
-        xAxis: {type: 'category'},
+        xAxis: {type: 'category',name:'数据集'},
         // 声明一个 Y 轴，数值轴。
-        yAxis: {},
+        yAxis: {type:'value',name:'Sec'},
         // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
         series: this.mySeries
       };
@@ -254,31 +253,31 @@ export default {
         legend: {},
         tooltip: {},
         title: {
-          text: '内存消耗:'
+          text: '内存:'
         },
         dataset: {
           // 提供一份数据。
           source: this.memory
         },
         // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
-        xAxis: {type: 'category'},
+        xAxis: {type: 'category',name:'数据集'},
         // 声明一个 Y 轴，数值轴。
-        yAxis: {},
+        yAxis: {type:'value',name:'MB'},
         // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
         series: this.mySeries
       };
-      let PSFUIOption = {
+      let SFUIOption = {
         legend: {},
         tooltip: {},
         title: {
-          text: 'PSFUI数量:'
+          text: 'SFUI:'
         },
         dataset: {
           // 提供一份数据。
-          source: this.PSFUI
+          source: this.SFUI
         },
         // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
-        xAxis: {type: 'category'},
+        xAxis: {type: 'category',name:'数据集'},
         // 声明一个 Y 轴，数值轴。
         yAxis: {},
         // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
@@ -288,63 +287,23 @@ export default {
         legend: {},
         tooltip: {},
         title: {
-          text: '搜索空间大小:'
+          text: '搜索空间:'
         },
         dataset: {
           // 提供一份数据。
           source: this.searchSpace
         },
         // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
-        xAxis: {type: 'category'},
+        xAxis: {type: 'category',name:'数据集'},
         // 声明一个 Y 轴，数值轴。
         yAxis: {},
         // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
         series: this.mySeries
       };
-      let option = {
-        legend: {},
-        tooltip: {},
-        dataset: {
-          source: [
-            ['product', '正常', '故障', '报警'],
-            ['1月', 43.3, 85.8, 93.7],
-            ['2月', 83.1, 73.4, 55.1],
-            ['3月', 86.4, 65.2, 82.5],
-            ['4月', 72.4, 53.9, 39.1]
-          ]
-        },
-        color: ['#4EEE79', '#FFCD8B', '#FF4203'],
-        xAxis: {
-          type: 'category',
-          // data: ['6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16'],
-          //设置坐标轴字体颜色和宽度
-          axisLine: {
-            lineStyle: {
-              color: "#fff",
-            }
-          }
-        },
-        yAxis: {
-          type: 'value',
-          //设置坐标轴字体颜色和宽度
-          axisLine: {
-            lineStyle: {
-              color: "#fff",
-            }
-          }
-        },
-        // Declare several bar series, each will be mapped
-        // to a column of dataset.source by default.
-        series: [
-          {type: 'bar', barWidth: 10},
-          {type: 'bar', barWidth: 10},
-          {type: 'bar', barWidth: 10}
-        ]
-      };
-
-      drawPSFUI.setOption(runtimeOption);
+      //作图
+      drawSFUI.setOption(runtimeOption);
       drawSearchCount.setOption(memoryOption);
-      drawRuntime.setOption(PSFUIOption);
+      drawRuntime.setOption(SFUIOption);
       drawMemory.setOption(searchSpaceOption);
 
     }
