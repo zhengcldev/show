@@ -12,6 +12,7 @@ import pdf from 'vue-pdf'
 // 全局引入echarts
 import * as echarts from 'echarts';
 import scyEcharts from 'scyecharts';
+import global from "./global";
 import {
     postRequest
 } from './utils/api.js';
@@ -33,6 +34,7 @@ Vue.use(Vuex);
 Vue.prototype.$echarts = echarts; // 引入echarts
 Vue.use(scyEcharts);
 Vue.prototype.pdf = pdf;
+Vue.prototype.Global=global;
 Vue.prototype.postRequest = postRequest;
 Vue.prototype.getRequest = getRequest;
 Vue.prototype.putRequest = putRequest;

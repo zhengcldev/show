@@ -33,7 +33,7 @@ export default {
     };
     let validatePass = (rule, value, callback) => {
       if (value === '') {
-        callback(new Error('请输入密码'));
+        callback(new Error('请输入新密码'));
       } else {
         if (this.ruleForm.checkPass !== '') {
           this.$refs.ruleForm.validateField('checkPass');
@@ -43,7 +43,7 @@ export default {
     };
     let validatePass2 = (rule, value, callback) => {
       if (value === '') {
-        callback(new Error('请再次输入密码'));
+        callback(new Error('请再次输入新密码'));
       } else if (value !== this.ruleForm.pass) {
         callback(new Error('两次输入密码不一致!'));
       } else if (value.length > 15) {
@@ -66,7 +66,7 @@ export default {
           {validator: validatePass2, trigger: 'blur'}
         ],
         prePass: [
-          {validator: checkPrePass(), trigger: 'blur'}
+          {validator: checkPrePass, trigger: 'blur'}
         ]
       }
     };
@@ -113,5 +113,8 @@ export default {
   width: 400px;
   margin: 100px auto 120px;
   padding: 20px;
+  border: 1px solid #DCDFE6;
+  border-radius: 5px;
+  box-shadow: 0 0 30px #DCDFE6;
 }
 </style>

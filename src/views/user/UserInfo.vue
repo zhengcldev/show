@@ -1,46 +1,42 @@
 <template>
-  <div>
-    <el-row>
-      <el-col :span="24">
-        <div v-if="Teacherform">
-          <h4 class="title">教师信息</h4>
-          　　　　//渲染教师信息
-          <el-table :data="teacherData" border style="width: 100%" >
-            <el-table-column prop="id" label="账号"></el-table-column>
-            <el-table-column prop="tname" label="姓名"></el-table-column>
-            <el-table-column prop="tsex" label="性别"></el-table-column>
-            <el-table-column prop="tdepart" label="部门"></el-table-column>
-            <el-table-column prop="class_cno" label="课程名"></el-table-column>
-            <el-table-column prop="passwd" label="密码"></el-table-column>
-            <el-table-column prop="role" label="角色"></el-table-column>
-          </el-table>
-        </div>
-
-          <h4 class="title">学生信息</h4>
-          　　　　//渲染学生信息
-          <el-table :data="studentData" border style="width: 100%" >
-            <el-table-column prop="id" label="学号"></el-table-column>
-            <el-table-column prop="name" label="姓名"></el-table-column>
-            <el-table-column prop="age" label="年龄"></el-table-column>
-            <el-table-column prop="sex" label="性别"></el-table-column>
-            <el-table-column prop="major" label="专业"></el-table-column>
-            <el-table-column prop="depart" label="院系"></el-table-column>
-            <el-table-column prop="term" label="学期"></el-table-column>
-            <el-table-column prop="year" label="年级"></el-table-column>
-            <el-table-column prop="passwd" label="密码"></el-table-column>
-            <el-table-column prop="role" label="角色"></el-table-column>
-          </el-table>
-
-      </el-col>
-    </el-row>
-  </div>
+  <el-descriptions title="用户信息" :column="2" border>
+    <el-descriptions-item label="头像"><el-avatar :size="60" :src=userInfo.pfpUrl></el-avatar></el-descriptions-item>
+    <el-descriptions-item label="用户名">{{userInfo.userName}}</el-descriptions-item>
+    <el-descriptions-item label="用户id">{{userInfo.userId}}</el-descriptions-item>
+    <el-descriptions-item label="性别">{{userInfo.sex}}</el-descriptions-item>
+    <el-descriptions-item label="联系地址">{{userInfo.address}}</el-descriptions-item>
+    <el-descriptions-item label="电话">{{userInfo.tel}}</el-descriptions-item>
+    <el-descriptions-item label="邮箱">{{userInfo.email}}</el-descriptions-item>
+    <el-descriptions-item label="所属机构">{{userInfo.dept}}</el-descriptions-item>
+    <el-descriptions-item label="个人简介" label-class-name="my-label">{{userInfo.introduction}}</el-descriptions-item>
+  </el-descriptions>
 </template>
 
 <script>
 export default {
-  name: 'UserInfo'
+  name: 'UserInfo',
+  data() {
+    return {
+      userInfo:[],
+    }
+  },
+  created() {
+    this.getUserInfo()
+  },
+  methods:{
+    getUserInfo(){
+      this.getRequest("/skyline/userInfo",{"userId":window.sessionStorage.getItem("userId")}).then(resp=>{
+        if(resp.data.data){
+          this.userInfo=resp.data.data;
+        }
+      })
+    }
+  }
 }
 </script>
 
-<style>
+<style lang="scss">
+.my-label {
+  height: 200px;
+}
 </style>

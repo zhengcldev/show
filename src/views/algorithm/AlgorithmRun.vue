@@ -132,25 +132,7 @@ export default {
     this.getAlgoName2();
     this.getAlgoName3();
   },
-  mounted() {
-    //this.rotation()
-  },
   methods: {
-    remoteMethod2(query) {
-      //remote :remoteMethod=""
-      if (query !== '') {
-        this.loading = true;
-        setTimeout(() => {
-          this.loading = false;
-          this.form.targetOption = this.states2.filter(item => {
-            return item.algoName.toLowerCase()
-                .indexOf(query.toLowerCase()) > -1;
-          });
-        }, 200);
-      } else {
-        this.form.targetOption = [];
-      }
-    },
     getAlgoName1() {
       this.getRequest("/skyline/getAlgorithm", {isSource: '1'}).then(resp => {
         this.form.sourceOption = resp.data.data;
@@ -186,7 +168,7 @@ export default {
           };
           this.postRequest('/skyline/runAlgorithm', returnDta).then(resp => {
             if (resp) {
-              //todo 清空画布，增加离线查询,用户信息，首页图片,超级管理员添加用户重置密码
+              //todo 清空画布,首页图片,超级管理员添加用户重置密码
               if (resp.data.data) {
                 for (let i = 0; i < this.value1.length+this.value2.length; i++) {
                   this.mySeries.push({type: 'bar'});
