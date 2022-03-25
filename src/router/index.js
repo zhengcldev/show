@@ -10,6 +10,7 @@ import AlgorithmRun from "@/views/algorithm/AlgorithmRun";
 import DatasetInfo from "@/views/algorithm/DatasetInfo";
 import UserCreate from "@/views/user/UserCreate";
 import AlgorithmOffline from "@/views/algorithm/AlgorithmOffline";
+import Welcome from "@/views/Welcome";
 
 
 Vue.use(VueRouter);
@@ -27,40 +28,46 @@ const routes = [
     {
         //首页
         path: "/home",
-        name: "Home",
+        name: "首页",
         component: Home,
+        redirect: '/welcome',
         children: [{
             path: "/user/info",
-            name: "UserInfo",
+            name: "个人信息",
             component: UserInfo,
         },
             {
                 path: "/user/password",
-                name: "UserPassword",
+                name: "修改密码",
                 component: UserPassword,
                 props: true
             },
             {
                 path: "/user/create",
-                name: "UserCreate",
+                name: "编辑用户",
                 component: UserCreate,
             }, {
                 path: "/algorithm/info",
-                name: "AlgorithmInfo",
+                name: "查看论文",
                 component: AlgorithmInfo,
             }, {
                 path: "/algorithm/offline",
-                name: "AlgorithmOffline",
+                name: "离线运行",
                 component: AlgorithmOffline,
             }
             , {
                 path: "/algorithm/run",
-                name: "AlgorithmRun",
+                name: "实时运行",
                 component: AlgorithmRun,
             }, {
                 path: "/dataset/info",
-                name: "DatasetInfo",
+                name: "编辑数据",
                 component: DatasetInfo,
+            },
+            {
+                path: "/welcome",
+                name: "欢迎",
+                component: Welcome,
             }
         ]
     },

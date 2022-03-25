@@ -1,6 +1,6 @@
 <template>
-  <el-descriptions title="用户信息" :column="2" border>
-    <el-descriptions-item label="头像"><el-avatar :size="60" :src=userInfo.pfpUrl></el-avatar></el-descriptions-item>
+  <el-descriptions :column="2" border>
+    <el-descriptions-item label="头像"><el-avatar shape="square" :size="60" :src=userInfo.pfpUrl></el-avatar></el-descriptions-item>
     <el-descriptions-item label="用户名">{{userInfo.userName}}</el-descriptions-item>
     <el-descriptions-item label="用户id">{{userInfo.userId}}</el-descriptions-item>
     <el-descriptions-item label="性别">{{userInfo.sex}}</el-descriptions-item>

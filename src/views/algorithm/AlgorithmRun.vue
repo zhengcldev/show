@@ -65,15 +65,11 @@
       </el-form>
     </el-row>
     <!--    图表-->
-    <el-row style="height: 40%">
-      <el-col :span="12">
-        <div id="SFUI" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
-      </el-col>
-      <el-col :span="12">
-        <div id="SearchCount" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
-      </el-col>
-    </el-row>
-    <el-row style="height: 40%">
+    <el-row v-loading="loadingAlgo"
+            element-loading-text="算法执行中"
+            element-loading-spinner="el-icon-loading"
+            element-loading-background="rgba(0, 0, 0, 0.8)"
+            style="height: 45%">
       <el-col :span="12">
         <div id="Runtime" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
       </el-col>
@@ -81,11 +77,22 @@
         <div id="Memory" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
       </el-col>
     </el-row>
+    <el-row style="height: 45%">
+      <el-col :span="12">
+        <div id="SFUI" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
+      </el-col>
+      <el-col :span="12">
+        <div id="SearchCount" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
+      </el-col>
+    </el-row>
+
   </div>
 
 </template>
 
 <script>
+import * as echarts from "echarts";
+
 export default {
   data() {
     return {
@@ -94,6 +101,7 @@ export default {
         targetOption: [],
         dataOption: []
       },
+      seriesSFUI: [],
       runtime: [[]],
       memory: [[]],
       SFUI: [[]],
@@ -101,10 +109,12 @@ export default {
       series: [],
       mySeries: [],
       myAlgo: [],
+      myData: [],
       value1: [],
       value2: [],
       value3: [],
       loading: false,
+      loadingAlgo: false,
       algoName: '',
       dataName: '',
       id: '',
@@ -145,7 +155,7 @@ export default {
     },
     getAlgoName3() {
       this.getRequest("/skyline/getDataset", null).then(resp => {
-        this.form.dataOption =  resp.data.data;
+        this.form.dataOption = resp.data.data;
       })
     },
     changTarget1(value) {
@@ -166,19 +176,24 @@ export default {
             target: this.value2,
             data: this.value3
           };
+          this.loadingAlgo = true;
           this.postRequest('/skyline/runAlgorithm', returnDta).then(resp => {
             if (resp) {
-              //todo 清空画布,首页图片,超级管理员添加用户重置密码
+              this.loadingAlgo = false;
+              //todo 清空画布,首页图片,重置密码
               if (resp.data.data) {
-                for (let i = 0; i < this.value1.length+this.value2.length; i++) {
+                for (let i = 0; i < this.value1.length + this.value2.length; i++) {
                   this.mySeries.push({type: 'bar'});
                 }
                 this.myAlgo.push('product');
-                for(let i=0;i<this.value1.length;i++){
+                for (let i = 0; i < this.value1.length; i++) {
                   this.myAlgo.push(this.value1[i]);
                 }
-                for(let i=0;i<this.value2.length;i++){
+                for (let i = 0; i < this.value2.length; i++) {
                   this.myAlgo.push(this.value2[i]);
+                }
+                for (let i = 0; i < this.value3.length; i++) {
+                  this.myData.push(this.value3[i]);
                 }
                 this.runtime = resp.data.data.runtime;
                 this.memory = resp.data.data.memory;
@@ -188,7 +203,23 @@ export default {
                 this.memory.unshift(this.myAlgo);
                 this.SFUI.unshift(this.myAlgo);
                 this.searchSpace.unshift(this.myAlgo);
-                //this.series = resp.data.data.series;
+                for (let i = 1; i < this.myAlgo.length; i++) {
+                  let dataSFUI = [];
+                  for (let k = 1; k < this.SFUI.length; k++) {
+                    dataSFUI.push(this.SFUI[k][i]);
+                  }
+                  let temp = {
+                    type: 'bar',
+                    data: dataSFUI,
+                    coordinateSystem: 'polar',
+                    name: this.myAlgo[i],
+                    stack: 'a',
+                    emphasis: {
+                      focus: 'series'
+                    }
+                  };
+                  this.seriesSFUI.push(temp);
+                }
                 this.rotation()
               } else {
                 this.$message({
@@ -210,7 +241,22 @@ export default {
       });
     },
     rotation() {
-      let drawSFUI = this.$echarts.init(document.getElementById('SFUI'));
+      /*
+      * option = {
+  angleAxis: {},
+  radiusAxis: {
+    type: 'category',
+    data: this.myData,
+    z: 10
+  },
+  polar: {},
+  series: this.seriesSFUI,
+  legend: {
+    show: true,
+    data: this.myAlgo
+  }
+};*/
+      let drawSFUI = echarts.init(document.getElementById('SFUI'));
       let drawSearchCount = this.$echarts.init(document.getElementById('SearchCount'));
       let drawRuntime = this.$echarts.init(document.getElementById('Runtime'));
       let drawMemory = this.$echarts.init(document.getElementById('Memory'));
@@ -225,11 +271,32 @@ export default {
           source: this.runtime
         },
         // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
-        xAxis: {type: 'category',name:'数据集'},
+        xAxis: {type: 'category', name: '数据集'},
         // 声明一个 Y 轴，数值轴。
-        yAxis: {type:'value',name:'Sec'},
+        yAxis: {type: 'value', name: 'Sec'},
         // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
         series: this.mySeries
+      };
+      let algo = [];
+      for (let i = 1; i < this.myAlgo.length; i++) {
+        algo.push(this.myAlgo[i]);
+      }
+      let optionSFUI = {
+        angleAxis: {},
+        title: {
+          text: 'SFUI数量:'
+        },
+        radiusAxis: {
+          type: 'category',
+          data: this.myData,
+          z: 10
+        },
+        polar: {},
+        series: this.seriesSFUI,
+        legend: {
+          show: true,
+          data: algo
+        }
       };
       let memoryOption = {
         legend: {},
@@ -242,9 +309,9 @@ export default {
           source: this.memory
         },
         // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
-        xAxis: {type: 'category',name:'数据集'},
+        xAxis: {type: 'category', name: '数据集'},
         // 声明一个 Y 轴，数值轴。
-        yAxis: {type:'value',name:'MB'},
+        yAxis: {type: 'value', name: 'MB'},
         // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
         series: this.mySeries
       };
@@ -259,7 +326,7 @@ export default {
           source: this.SFUI
         },
         // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
-        xAxis: {type: 'category',name:'数据集'},
+        xAxis: {type: 'category', name: '数据集'},
         // 声明一个 Y 轴，数值轴。
         yAxis: {},
         // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
@@ -276,17 +343,18 @@ export default {
           source: this.searchSpace
         },
         // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
-        xAxis: {type: 'category',name:'数据集'},
+        xAxis: {type: 'category', name: '数据集'},
         // 声明一个 Y 轴，数值轴。
         yAxis: {},
         // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
         series: this.mySeries
       };
-      //作图
-      drawSFUI.setOption(runtimeOption);
-      drawSearchCount.setOption(memoryOption);
-      drawRuntime.setOption(SFUIOption);
-      drawMemory.setOption(searchSpaceOption);
+      //作图optionSFUI
+      console.log(optionSFUI);
+      drawSFUI.setOption(optionSFUI);
+      drawSearchCount.setOption(searchSpaceOption);
+      drawRuntime.setOption(runtimeOption);
+      drawMemory.setOption(memoryOption);
 
     }
   }

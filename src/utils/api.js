@@ -38,6 +38,11 @@ axios.interceptors.response.use(success => {
 			message: '尚未登陆！'
 		});
 		router.replace('/login');
+	} else if (error.response.code === 502) {
+		Message.error({
+			message: '当前用户id已存在，请重试'
+		});
+		router.replace('/user/create');
 	} else {
 		if (error.response.message) {
 			Message.error({

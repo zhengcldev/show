@@ -72,15 +72,14 @@ export default {
     };
   },
   methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+    submitForm() {
         let data = {
           userId: window.sessionStorage.getItem("userId"),
           password: this.ruleForm.prePass,
           newPassword: this.ruleForm.checkPass
         };
         console.log(data);
-        if (valid) {
+
           this.postRequest("/skyline/updatePassword", data).then(resp => {
             if (resp.data) {
               if (resp.data.data) {
@@ -93,12 +92,7 @@ export default {
             } else {
               this.$message.error('未知错误，请重新输入');
             }
-          })
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
+          });
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();

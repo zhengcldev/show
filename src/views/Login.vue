@@ -1,28 +1,33 @@
 <template>
-  <div>
-    <el-form ref="form" :model="form" :rules="rules" class="login-box">
-      <h3 class="login-title">欢迎登陆</h3>
-      <el-form-item label="账号" prop="userId">
-        <el-input type="text" placeholder="请输入账号" v-model="form.userId"></el-input>
-      </el-form-item>
+  <div class="login-wrap">
+    <div class="title">
+      <h1>轮廓模式挖掘算法展示系统</h1>
+    </div>
+    <div>
+      <el-form ref="form" :model="form" :rules="rules" class="login-box">
+        <h3 class="login-title">欢迎登陆</h3>
+        <el-form-item label="账号" prop="userId">
+          <el-input type="text" placeholder="请输入账号" v-model="form.userId"></el-input>
+        </el-form-item>
 
-      <el-form-item label="密码" prop="password">
-        <el-input type="password" placeholder="请输入密码" v-model="form.password"></el-input>
-      </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input type="password" placeholder="请输入密码" v-model="form.password"></el-input>
+        </el-form-item>
 
-      <!-- 验证码 显示 -->
-      <el-form-item label="验证码" prop="code">
-        <el-input type="text" placeholder="请输入验证码" v-model="form.code"
-                  style="width: 150px;margin-right: 10px;"></el-input>
-        <img id="verifyimg" @click="getvCode" alt="点击更换验证码" src=""/>
-      </el-form-item>
+        <!-- 验证码 显示 -->
+        <el-form-item label="验证码" prop="code">
+          <el-input type="text" placeholder="请输入验证码" v-model="form.code"
+                    style="width: 150px;margin-right: 10px;"></el-input>
+          <img id="verifyimg" @click="getvCode" alt="点击更换验证码" src=""/>
+        </el-form-item>
 
-      <el-form-item>
-        <el-checkbox v-model="checked">记住我</el-checkbox>
-        <el-button type="primary" style="width: 100%" @click="submitForm('form')">登陆</el-button>
-      </el-form-item>
+        <el-form-item>
+          <el-checkbox v-model="checked">记住我</el-checkbox>
+          <el-button type="primary" style="width: 100%" @click="submitForm('form')">登陆</el-button>
+        </el-form-item>
 
-    </el-form>
+      </el-form>
+    </div>
   </div>
 </template>
 
@@ -31,7 +36,7 @@ export default {
   name: 'Login',
   data() {
     return {
-      checked:'',
+      checked: '',
       captchaUrl: '',
       form: {
         userId: '',
@@ -81,14 +86,14 @@ export default {
               if (rep.data.data) {
                 if (rep.data.data.isLogin) {
                   sessionStorage.setItem('isLogin', 'true');
-                  if(rep.data.data.isSupper===1){
-                    window.sessionStorage.setItem("isSupper",'true');
-                  }else{
-                    window.sessionStorage.setItem("isSupper",'false');
+                  if (rep.data.data.isSupper === 1) {
+                    window.sessionStorage.setItem("isSupper", 'true');
+                  } else {
+                    window.sessionStorage.setItem("isSupper", 'false');
                   }
                   window.sessionStorage.setItem("userId", this.form.userId);
                   this.$router.push({
-                    name: 'Home',
+                    name: '首页',
                     params: {
                       name: this.form.userId
                     }
@@ -101,10 +106,14 @@ export default {
                   });
                 }
               } else {
-                this.$message({
-                  message: '未知错误',
-                  type: 'error'
-                });
+                if (rep.data.status === "405") {
+                  this.$message.error(rep.data.message);
+                } else {
+                  this.$message({
+                    message: '未知错误',
+                    type: 'error'
+                  });
+                }
               }
             }
           }).catch(function (error) {
@@ -131,10 +140,24 @@ export default {
   border: 1px solid #DCDFE6;
   padding: 20px;
   border-radius: 5px;
-  box-shadow: 0 0 30px #DCDFE6;
+  background-color: #F8F8FF;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: -80px;
+  margin-top: 80px;
+  color: #FFFFFF;
 }
 
 .login-title {
   text-align: center;
+}
+
+.login-wrap {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color: #4682B4;
 }
 </style>
