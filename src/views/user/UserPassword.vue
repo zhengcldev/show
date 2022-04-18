@@ -74,7 +74,8 @@ export default {
   methods: {
     submitForm() {
         let data = {
-          userId: window.sessionStorage.getItem("userId"),
+          //userId: window.sessionStorage.getItem("userId"),
+          userId:this.$cookies.get("userId"),
           password: this.ruleForm.prePass,
           newPassword: this.ruleForm.checkPass
         };

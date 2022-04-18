@@ -25,7 +25,7 @@ export default {
   },
   methods:{
     getUserInfo(){
-      this.getRequest("/skyline/userInfo",{"userId":window.sessionStorage.getItem("userId")}).then(resp=>{
+      this.getRequest("/skyline/userInfo",{"userId":this.$cookies.get("userId")}).then(resp=>{
         if(resp.data.data){
           this.userInfo=resp.data.data;
         }

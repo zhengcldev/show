@@ -12,6 +12,7 @@ import pdf from 'vue-pdf'
 // 全局引入echarts
 import * as echarts from 'echarts';
 import scyEcharts from 'scyecharts';
+import VueCookies from "vue-cookies";
 import global from "./global";
 import {
     postRequest
@@ -30,7 +31,7 @@ import {
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(Vuex);
-
+Vue.use(VueCookies);
 Vue.prototype.$echarts = echarts; // 引入echarts
 Vue.use(scyEcharts);
 Vue.prototype.pdf = pdf;
@@ -46,9 +47,11 @@ Vue.config.productionTip = false;
 
 router.beforeEach((to, from, next) => {
     let isLogin = sessionStorage.getItem('isLogin');
+    //let isLogin = this.$cookies.get('isLogin');
     //登出
     if (to.path === '/logout') {
         //清空
+        this.$cookies.clear();
         sessionStorage.clear();
         //跳转至登陆
         next({

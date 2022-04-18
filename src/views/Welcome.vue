@@ -28,50 +28,72 @@ import * as echarts from "echarts";
 export default {
   name: "Welcome",
   created() {
+
   },
   mounted() {
-    this.initData();
+    this.getFuncLog();
+    this.getHotLog();
   },
   data() {
     return {
       imgList: [
         {
-          name: "lj",
+          name: "ncut1",
           src: require("/public/Image/NCUT/ncut1.png"),
-          title: "这是lj.png"
+          title: "这是ncut.png"
         },
         {
-          name: "logo",
+          name: "ncut2",
           src: require("/public/Image/NCUT/ncut2.png"),
-          title: "这是logo.png"
+          title: "这是ncut.png"
         },
         {
-          name: "bg",
+          name: "ncut3",
           src: require("/public/Image/NCUT/ncut3.png"),
-          title: "这是bg.png"
+          title: "这是ncut.png"
         },
         {
-          name: "sadmas",
-          src: require("/public/Image/NCUT/ncut2.png"),
-          title: "这是sadmas.png"
+          name: "ncut4",
+          src: require("/public/Image/NCUT/ncut4.png"),
+          title: "这是ncut.png"
+        },
+        {
+          name: "ncut5",
+          src: require("/public/Image/NCUT/ncut5.jpg"),
+          title: "这是ncut.png"
         }
       ],
+      funcData:[],
+      hotDate:[],
+      hotData:[]
     }
   },
   methods: {
+    getFuncLog(){
+      this.getRequest("/skyline/getFuncLog",null).then(resp=>{
+        if(resp.data.data){
+          this.funcData.push({value:resp.data.data.algoRuntime,name:'实时运行'});
+          this.funcData.push({value:resp.data.data.algoOffline,name:'离线运行'});
+          this.funcData.push({value:resp.data.data.editUser,name:'编辑用户'});
+          this.funcData.push({value:resp.data.data.readPaper,name:'查看论文'});
+          this.funcData.push({value:resp.data.data.editData,name:'编辑数据'});
+          this.funcData.push({value:resp.data.data.userInfo,name:'个人信息'});
+          this.funcData.push({value:resp.data.data.updatePwd,name:'修改密码'});
+          this.initData();
+        }
+      })
+    },
+    getHotLog(){
+      this.getRequest("/skyline/getHotLog",null).then(resp=>{
+        this.hotDate=resp.data.data.date;
+        this.hotData=resp.data.data.times;
+        console.log(this.hotData);
+        this.initData2();
+      });
+
+    },
     //初始化数据
-    initData() {
-      let base = +new Date(2022, 1, 1);
-      let oneDay = 24 * 3600 * 1000;
-      let date = [];
-      let data = [100];
-      for (let i = 1; i < 100; i++) {
-        let now = new Date((base += oneDay));
-        date.push([now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'));
-        data.push(Math.round((Math.random()-0.5) * 20 + data[i - 1]));
-      }
-      // 基于准备好的dom，初始化echarts实例
-      let myChart = echarts.init(document.getElementById('hot'));
+    initData2(){
       let visitSystem = echarts.init(document.getElementById('visit'));
       visitSystem.setOption({
         tooltip: {
@@ -96,7 +118,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: date
+          data: this.hotDate
         },
         yAxis: {
           type: 'value',
@@ -106,7 +128,7 @@ export default {
           {
             type: 'inside',
             start: 0,
-            end: 10
+            end: 100
           },
           {
             start: 0,
@@ -134,14 +156,29 @@ export default {
                 }
               ])
             },
-            data: data
+            data: this.hotData
           }
         ]
       });
+    },
+    initData() {
+      let base = +new Date(2022, 1, 1);
+      let oneDay = 24 * 3600 * 1000;
+      let date = [];
+      let data = [100];
+      for (let i = 1; i < 100; i++) {
+        let now = new Date((base += oneDay));
+        date.push("2012/2/3");
+        data.push(5);
+      }
+      // 基于准备好的dom，初始化echarts实例
+      let myChart = echarts.init(document.getElementById('hot'));
+
+
       // 绘制热门图表
       myChart.setOption({
         title: {
-          text: '系统近一个月热门功能使用情况',//主标题
+          text: '系统热门功能使用情况',//主标题
           x: 'center',//x轴方向对齐方式
         },
         tooltip: {
@@ -155,19 +192,11 @@ export default {
         },
         series: [
           {
-            name: '访问来源',
+            name: '使用功能',
             type: 'pie',
             radius: '55%',
-            center: ['50%', '60%'],
-            data: [
-              {value: 1428, name: '实时运行'},
-              {value: 857, name: '离线运行'},
-              {value: 250, name: '编辑用户'},
-              {value: 387, name: '查看论文'},
-              {value: 259, name: '编辑数据'},
-              {value: 666, name: '个人信息'},
-              {value: 105, name: '修改密码'},
-            ],
+            center: ['50%', '55%'],
+            data: this.funcData,
             itemStyle: {
               emphasis: {
                 shadowBlur: 10,

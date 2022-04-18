@@ -16,6 +16,7 @@
     "sass-loader": "^10.2.0",
     "scyecharts": "^2.0.0",
     "vue": "^2.6.11",
+    "vue-cookies": "^1.8.0",
     "vue-pdf": "^4.3.0"
   },
   "devDependencies": {

@@ -5,18 +5,18 @@
     </div>
     <div>
       <el-form ref="form" :model="form" :rules="rules" class="login-box">
-        <h3 class="login-title">欢迎登陆</h3>
+        <h3 class="login-title">欢迎登录</h3>
         <el-form-item label="账号" prop="userId">
-          <el-input type="text" placeholder="请输入账号" v-model="form.userId"></el-input>
+          <el-input prefix-icon="el-icon-user" type="text" placeholder="请输入账号" v-model="form.userId"></el-input>
         </el-form-item>
 
         <el-form-item label="密码" prop="password">
-          <el-input type="password" placeholder="请输入密码" v-model="form.password"></el-input>
+          <el-input prefix-icon="el-icon-lock" type="password" placeholder="请输入密码" v-model="form.password"></el-input>
         </el-form-item>
 
         <!-- 验证码 显示 -->
         <el-form-item label="验证码" prop="code">
-          <el-input type="text" placeholder="请输入验证码" v-model="form.code"
+          <el-input prefix-icon="el-icon-picture-outline" type="text" placeholder="请输入验证码" v-model="form.code"
                     style="width: 150px;margin-right: 10px;"></el-input>
           <img id="verifyimg" @click="getvCode" alt="点击更换验证码" src=""/>
         </el-form-item>
@@ -27,6 +27,7 @@
         </el-form-item>
 
       </el-form>
+      <div style="margin-top: -100px;margin-left: 600px;" class="active">Copyright @2022 北方工业大学</div>
     </div>
   </div>
 </template>
@@ -36,8 +37,9 @@ export default {
   name: 'Login',
   data() {
     return {
-      checked: '',
+      checked: true,
       captchaUrl: '',
+      id: '',
       form: {
         userId: '',
         password: '',
@@ -62,6 +64,9 @@ export default {
       }
     }
   },
+  created() {
+    this.form.userId=this.$cookies.get("uidInput");
+  },
   mounted() {
     this.getvCode();
   },
@@ -85,13 +90,33 @@ export default {
             if (rep) {
               if (rep.data.data) {
                 if (rep.data.data.isLogin) {
+                  if(this.checked){
+                    this.$cookies.set('uidInput', this.form.userId,24*60*60);
+                  }
+                  this.$cookies.set('isLogin', 'true',24*60*60);
                   sessionStorage.setItem('isLogin', 'true');
                   if (rep.data.data.isSupper === 1) {
+                    this.$cookies.set("isSupper", 'true',24*60*60);
                     window.sessionStorage.setItem("isSupper", 'true');
                   } else {
-                    window.sessionStorage.setItem("isSupper", 'false');
+                    //window.sessionStorage.setItem("isSupper", 'false');
+                    this.$cookies.set("isSupper", 'false',24*60*60);
                   }
-                  window.sessionStorage.setItem("userId", this.form.userId);
+                  this.$cookies.set("userId",this.form.userId,24*60*60);
+                 // window.sessionStorage.setItem("userId", this.form.userId);
+                  let params = {
+                    userId: this.form.userId,
+                    loginTime: new Date().getTime()
+                  };
+                  this.postRequest("/skyline/insertLog", params).then(resp => {
+                    if (resp.data.data) {
+                      this.$cookies.set("id", resp.data.data.id,24*60*60)
+                      //window.sessionStorage.setItem("id", resp.data.data.id);
+                    } else {
+                      this.$message.error("日志写入失败");
+                    }
+                  });
+
                   this.$router.push({
                     name: '首页',
                     params: {
@@ -101,14 +126,16 @@ export default {
                 } else {
                   this.getvCode();
                   this.$message({
-                    message: rep.data.data.Msg,
+                    message: rep.data.message,
                     type: 'error'
                   });
                 }
               } else {
+                //用户已锁定
                 if (rep.data.status === "405") {
                   this.$message.error(rep.data.message);
                 } else {
+                  this.getvCode();
                   this.$message({
                     message: '未知错误',
                     type: 'error'
@@ -159,5 +186,8 @@ export default {
   height: 100%;
   width: 100%;
   background-color: #4682B4;
+}
+.active{
+  color:#FFFFFF;
 }
 </style>

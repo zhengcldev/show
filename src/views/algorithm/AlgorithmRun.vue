@@ -1,6 +1,6 @@
 <template>
   <div class="box">
-    <el-row style="height: 10%">
+    <el-row style="height: 8%">
       <el-form :inline="true" ref="form" :model="form" :rules="rules" class="login-box">
         <el-form-item label="提出算法:" prop="sourceOption">
           <el-select
@@ -62,6 +62,9 @@
         <el-form-item>
           <el-button type="primary" @click="runAlgo('form')">运行</el-button>
         </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="clearBar">清空面板</el-button>
+        </el-form-item>
       </el-form>
     </el-row>
     <!--    图表-->
@@ -69,7 +72,7 @@
             element-loading-text="算法执行中"
             element-loading-spinner="el-icon-loading"
             element-loading-background="rgba(0, 0, 0, 0.8)"
-            style="height: 45%">
+            style="height: 40%">
       <el-col :span="12">
         <div id="Runtime" :style="{width: '100%', height: '100%',fontSize:'25px'}"></div>
       </el-col>
@@ -143,6 +146,9 @@ export default {
     this.getAlgoName3();
   },
   methods: {
+    clearBar(){
+      location.reload();
+    },
     getAlgoName1() {
       this.getRequest("/skyline/getAlgorithm", {isSource: '1'}).then(resp => {
         this.form.sourceOption = resp.data.data;
@@ -154,8 +160,9 @@ export default {
       })
     },
     getAlgoName3() {
-      this.getRequest("/skyline/getDataset", null).then(resp => {
-        this.form.dataOption = resp.data.data;
+      let params = {currentPage: 1};
+      this.postRequest("/skyline/getDataset", params).then(resp => {
+        this.form.dataOption = resp.data.data.list;
       })
     },
     changTarget1(value) {
